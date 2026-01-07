@@ -109,18 +109,7 @@ public class BedwarsitemtrackerClient implements ClientModInitializer {
         @SuppressWarnings("OptionalGetWithoutIsPresent") // Safe in the case of items
         Identifier id = item.getRegistryEntry().getKey().get().getValue();
         List<ItemPickupEntry> list = STORE.computeIfAbsent(id, k -> new ArrayList<>());
-
-        // We count items spawned within 150ms window from each other as one entry
-        if (!list.isEmpty()) {
-            ItemPickupEntry previous = list.getLast();
-            if (Math.abs(timestamp - previous.timestamp()) < 150) {
-                list.removeLast();
-                list.add(new ItemPickupEntry(previous.count() + count, previous.timestamp()));
-                return;
-            }
-        }
         list.add(new ItemPickupEntry(count, timestamp));
-
     }
 
     public static void reset() {

@@ -1,47 +1,54 @@
 import sys
-import csv
 import polars as pl
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
 
+GROUP_WINDOW_MS = 100
+
+
+# Merge many item spawns within the GROUP_WINDOW_MS time window into one spawn
+def merge_close_item_spawns(df):
+    df = df.with_columns(
+        (
+            (pl.col("timeMs") - pl.col("timeMs").shift(1) > GROUP_WINDOW_MS)
+            | (pl.col("item") != pl.col("item").shift(1))
+        )
+        .fill_null(True)
+        .cum_sum()
+        .alias("group")
+    )
+
+    print(df)
+
+    df = df.group_by("group", maintain_order=True).agg(
+        [
+            pl.col("item").first(),
+            pl.col("count").sum(),
+            pl.col("timeMs").first(),
+        ]
+    )
+
+    return df.drop("group")
+
+
 def main():
     path = sys.argv[1]
+    merge = len(sys.argv) > 2 and sys.argv[2].lower() == "true"
 
     df = pl.read_csv(path)
 
+    if merge:
+        df = merge_close_item_spawns(df)
+
     df = df.with_columns((pl.col("timeMs") / 1000).alias("timeS"))
 
-    # print(df)
-
-    # data = []
-    # with open(path, newline="") as csvfile:
-    #     reader = csv.reader(csvfile)
-    #     data = list(reader)[1:]
-
-    # times = []
-    # counts = []
-
-    # for row in data:
-    #     times.append(float(row[0]) / 1000)
-    #     counts.append(int(row[1]))
-
-    # timeInSecs = [round(x, 2) for x in times[1:]]
-    # timeDifferences = []
-
-    # for i in range(1, len(times)):
-    #     timeDifferences.append(times[i] - times[i - 1])
-    for group in df.group_by("item"):
+    for group in df.group_by("item", maintain_order=True):
         (group_data, frame) = group
         category = group_data[0]
         frame = frame.with_columns(
-            (
-                pl.col("timeS").diff().alias("timeDiff"),
-                pl.col("timeMs").diff().alias("timeDiffDebug"),
-            )
+            (pl.col("timeS").diff().alias("timeDiff"),)
         ).drop_nulls("timeDiff")
-        if category == "iron_ingot":
-            frame.write_csv("debug.csv")
         plt.plot(frame["timeS"].to_list(), frame["timeDiff"].to_list(), label=category)
 
     plt.legend()
