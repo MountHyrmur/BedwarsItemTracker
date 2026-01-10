@@ -118,7 +118,7 @@ public class BedwarsitemtrackerClient implements ClientModInitializer {
         STORE.clear();
     }
 
-    public static Optional<String> saveRaport() {
+    public static Optional<String> saveRaport(String name) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm");
         String timestamp = LocalDateTime.now().format(formatter);
 
@@ -126,7 +126,9 @@ public class BedwarsitemtrackerClient implements ClientModInitializer {
             return Optional.of("Not saving report, nothing to save");
         }
 
-        String fileName = "drops_" + timestamp + ".csv";
+        String namePrefix = name == null ? "" : name + "_";
+
+        String fileName = namePrefix + "drops_" + timestamp + ".csv";
         StringBuilder builder = new StringBuilder("item,timeMs,count\n");
 
         for (var entry: STORE.entrySet()) {
