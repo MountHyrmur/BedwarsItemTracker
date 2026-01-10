@@ -3,8 +3,10 @@ name = "bedwarsitemtracker"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "matplotlib>=3.10.8",
+    "numpy>=2.2.6",
     "polars>=1.36.1",
+    "scikit-learn>=1.8.0",
 ]
