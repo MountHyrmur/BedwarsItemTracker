@@ -36,6 +36,11 @@ public class BwTrackerClientCommand {
             return Command.SINGLE_SUCCESS;
         }));
 
-        return literal("bwtracker").then(resetSubcommand).then(saveSubcommand).then(modeSubcommand);
+        var statusSubcommand = literal("status").executes(ctx -> {
+            ctx.getSource().sendFeedback(Text.literal(BedwarsitemtrackerClient.getSummary()));
+            return Command.SINGLE_SUCCESS;
+        });
+
+        return literal("bwtracker").then(resetSubcommand).then(saveSubcommand).then(modeSubcommand).then(statusSubcommand);
     }
 }

@@ -149,4 +149,22 @@ public class BedwarsitemtrackerClient implements ClientModInitializer {
         }
         return Optional.empty();
     }
+
+    public static String getSummary() {
+        String start = "State:\n";
+        if (STORE.isEmpty()) {
+            return start + "No data stored";
+        }
+
+        StringBuilder builder = new StringBuilder(start);
+
+        for (var entry: STORE.entrySet()) {
+            builder.append(entry.getKey().getPath());
+            builder.append(": ");
+            int count = entry.getValue().stream().map(ItemPickupEntry::count).reduce(Integer::sum).orElseThrow();
+            builder.append(count);
+        }
+
+        return builder.toString();
+    }
 }
