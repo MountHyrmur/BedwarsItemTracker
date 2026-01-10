@@ -119,7 +119,7 @@ public class BedwarsitemtrackerClient implements ClientModInitializer {
     }
 
     public static Optional<String> saveRaport(String name) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm");
         String timestamp = LocalDateTime.now().format(formatter);
 
         if (STORE.isEmpty() || STORE.values().stream().allMatch(List::isEmpty)) {
